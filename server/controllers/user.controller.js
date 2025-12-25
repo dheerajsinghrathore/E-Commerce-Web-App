@@ -224,7 +224,7 @@ export async function logoutController(req, res) {
   }
 }
 
-//Upload Cloudinary Image Function
+//Upload Cloudinary Image Function to upload image to cloudinary and save url to user model
 export async function uploadCloudinaryImageController(req, res) {
   try {
     if (!req.file) {
@@ -236,7 +236,7 @@ export async function uploadCloudinaryImageController(req, res) {
     }
 
     const uploadResult = await uploadCloudinaryImage(req.file);
-    
+
     // Auth middleware sets req.user with decoded token containing id
     if (!req.user || !req.user.id) {
       return res.status(401).json({
