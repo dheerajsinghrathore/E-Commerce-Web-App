@@ -1,0 +1,37 @@
+# ----------------------
+# ENV / Secrets
+# ----------------------
+.env
+.env.*
+*.key
+
+# ----------------------
+# Node / Server
+# ----------------------
+server/node_modules/
+server/dist/
+npm-debug.log*
+yarn-error.log*
+
+# ----------------------
+# React / Frontend
+# ----------------------
+client/node_modules/
+client/build/
+client/dist/
+
+# ----------------------
+# Android
+# ----------------------
+*.iml
+.gradle/
+local.properties
+.idea/
+build/
+*/build/
+
+# ----------------------
+# OS / Junk
+# ----------------------
+.DS_Store
+Thumbs.db

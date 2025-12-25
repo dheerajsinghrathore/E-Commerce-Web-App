@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import sendEmail from "../config/sendEmail.js";
 import generateAccessToken from "../utils/generateAccessToken.js";
 import generateRefreshToken from "../utils/generateRefreshToken.js";
+import uploadCloudinaryImage from "../utils/uploadCloudinaryImage.js";
 
 export async function registerUser(req, res) {
   try {
@@ -215,6 +216,63 @@ export async function logoutController(req, res) {
       message: "Logout successful.",
       error: false,
       success: true,
+    });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: error.message, error: true, success: false });
+  }
+}
+
+//Upload Cloudinary Image Function
+export async function uploadCloudinaryImageController(req, res) {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        message: "No file uploaded.",
+        error: true,
+        success: false,
+      });
+    }
+
+    const uploadResult = await uploadCloudinaryImage(req.file);
+    
+    // Auth middleware sets req.user with decoded token containing id
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({
+        message: "User authentication required.",
+        error: true,
+        success: false,
+      });
+    }
+
+    const userId = req.user.id;
+
+    // Use secure_url if available, otherwise fall back to url
+    const imageUrl = uploadResult.secure_url || uploadResult.url;
+
+    const updatedUser = await UserModel.findByIdAndUpdate(
+      userId,
+      { avatar: imageUrl },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        message: "User not found.",
+        error: true,
+        success: false,
+      });
+    }
+
+    return res.json({
+      message: "Image uploaded successfully.",
+      error: false,
+      success: true,
+      data: {
+        _id: updatedUser._id,
+        avatar: updatedUser.avatar,
+      },
     });
   } catch (error) {
     return res
