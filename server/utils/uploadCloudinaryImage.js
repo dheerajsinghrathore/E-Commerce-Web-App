@@ -1,21 +1,28 @@
 import { v2 as cloudinary } from "cloudinary";
-import dotenv from "dotenv";
 
-dotenv.config();
+// Lazy initialization to ensure dotenv.config() has run
+let isConfigured = false;
 
-if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
-  throw new Error(
-    "Cloudinary configuration is missing. Please set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET in .env file"
-  );
-}
+const configureCloudinary = () => {
+  if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+    throw new Error(
+      "Cloudinary configuration is missing. Please set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET in .env file"
+    );
+  }
 
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+  if (!isConfigured) {
+    cloudinary.config({
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+      api_key: process.env.CLOUDINARY_API_KEY,
+      api_secret: process.env.CLOUDINARY_API_SECRET,
+    });
+    isConfigured = true;
+  }
+};
 
 const uploadCloudinaryImage = async (file) => {
+  configureCloudinary(); // Ensure Cloudinary is configured before use
+
   if (!file) {
     throw new Error("No file provided");
   }

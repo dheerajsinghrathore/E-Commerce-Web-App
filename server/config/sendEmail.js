@@ -1,16 +1,22 @@
 import { Resend } from "resend";
-import dotenv from "dotenv";
-dotenv.config();
 
-if (!process.env.RESEND_API_KEY) {
-  throw new Error("RESEND_API_KEY is not defined in environment variables");
-}
+// Lazy initialization to ensure dotenv.config() has run
+let resend = null;
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const getResend = () => {
+  if (!process.env.RESEND_API_KEY) {
+    throw new Error("RESEND_API_KEY is not defined in environment variables");
+  }
+  if (!resend) {
+    resend = new Resend(process.env.RESEND_API_KEY);
+  }
+  return resend;
+};
 
 const sendEmail = async (name, sendTo, subject, html) => {
   try {
-    const { data, error } = await resend.emails.send({
+    const resendInstance = getResend();
+    const { data, error } = await resendInstance.emails.send({
       from: "Dheeraj E-Commerce <onboarding@resend.dev>",
       to: [sendTo],
       subject: subject,

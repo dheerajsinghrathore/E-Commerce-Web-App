@@ -10,6 +10,12 @@ import generateRefreshToken from "../utils/generateRefreshToken.js";
 import uploadCloudinaryImage from "../utils/uploadCloudinaryImage.js";
 import generateOTP from "../utils/generateOTP.js";
 import jwt from "jsonwebtoken";
+import {
+  ACCESS_TOKEN_COOKIE_OPTIONS,
+  REFRESH_TOKEN_COOKIE_OPTIONS,
+  OTP_EXPIRATION_TIME,
+  BCRYPT_SALT_ROUNDS,
+} from "../utils/constants.js";
 
 export async function registerUser(req, res) {
   try {
@@ -52,7 +58,7 @@ export async function registerUser(req, res) {
       });
     }
 
-    const salt = await bcrypt.genSalt(10);
+    const salt = await bcrypt.genSalt(BCRYPT_SALT_ROUNDS);
     const hashedPassword = await bcrypt.hash(password, salt);
 
     const newUser = new UserModel({
@@ -94,11 +100,16 @@ export async function registerUser(req, res) {
       // You might want to handle this differently based on your requirements
     }
 
+    // Remove password from response
+    const userResponse = newUser.toObject();
+    delete userResponse.password;
+    delete userResponse.refresh_token;
+
     return res.json({
       message: "User registered successfully. Please verify your email.",
       error: false,
       success: true,
-      data: newUser,
+      data: userResponse,
     });
   } catch (error) {
     res
@@ -120,7 +131,7 @@ export async function verifyEmailController(req, res) {
       });
     }
 
-    if (user.isVerified) {
+    if (user.verify_email) {
       return res.status(200).json({
         message: "Email is already verified.",
         error: false,
@@ -184,22 +195,11 @@ export async function loginController(req, res) {
       });
     }
 
-    const accessToken = await generateAccessToken(user);
+    const accessToken = generateAccessToken(user);
     const refreshToken = await generateRefreshToken(user);
 
-    res.cookie("accessToken", accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "Strict",
-      maxAge: 60 * 60 * 1000, // 1 hour
-    });
-
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "Strict",
-      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-    });
+    res.cookie("accessToken", accessToken, ACCESS_TOKEN_COOKIE_OPTIONS);
+    res.cookie("refreshToken", refreshToken, REFRESH_TOKEN_COOKIE_OPTIONS);
 
     return res.json({
       message: "Login successful.",
@@ -406,7 +406,7 @@ export async function updateUserProfileController(req, res) {
         });
       }
 
-      const salt = await bcrypt.genSalt(10);
+      const salt = await bcrypt.genSalt(BCRYPT_SALT_ROUNDS);
       const hashedPassword = await bcrypt.hash(password, salt);
       updatedData.password = hashedPassword;
     }
@@ -479,7 +479,7 @@ export async function forgotPasswordController(req, res) {
 
     // Generate OTP and send email
     const otp = generateOTP();
-    const expirationTime = new Date(Date.now() + 60 * 60 * 1000); // OTP valid for 1 hour
+    const expirationTime = new Date(Date.now() + OTP_EXPIRATION_TIME);
 
     // Update user with OTP and expiry
     user.forgot_password_otp = otp;
@@ -661,7 +661,7 @@ export async function resetPasswordController(req, res) {
     }
 
     // Hash and update password
-    const salt = await bcrypt.genSalt(10);
+    const salt = await bcrypt.genSalt(BCRYPT_SALT_ROUNDS);
     const hashedPassword = await bcrypt.hash(newPassword, salt);
     user.password = hashedPassword;
 
@@ -751,14 +751,9 @@ export async function refreshTokenController(req, res) {
     }
 
     // Generate new access token with full user object
-    const accessToken = await generateAccessToken(user);
+    const accessToken = generateAccessToken(user);
 
-    res.cookie("accessToken", accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "Strict",
-      maxAge: 60 * 60 * 1000, // 1 hour
-    });
+    res.cookie("accessToken", accessToken, ACCESS_TOKEN_COOKIE_OPTIONS);
 
     return res.json({
       message: "New access token generated successfully.",
