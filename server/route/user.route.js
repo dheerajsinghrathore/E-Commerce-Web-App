@@ -5,6 +5,11 @@ import {
   verifyEmailController,
   logoutController,
   uploadCloudinaryImageController,
+  updateUserProfileController,
+  forgotPasswordController,
+  verifyForgotPasswordOtpController,
+  resetPasswordController,
+  refreshTokenController,
 } from "../controllers/user.controller.js";
 import auth from "../middleware/auth.js";
 import upload from "../middleware/multer.js";
@@ -21,5 +26,12 @@ router.put(
   upload.single("avatar"),
   uploadCloudinaryImageController
 );
+
+router.put("/update-user", auth, updateUserProfileController);
+router.post("/forgot-password", forgotPasswordController);
+router.put("/forgot-password", forgotPasswordController); // Support both POST and PUT
+router.put("/verify-otp", verifyForgotPasswordOtpController); // Support OTP verification
+router.put("/reset-password", resetPasswordController); // Support both POST and PUT
+router.post("/refresh-token", refreshTokenController); // Token refresh route
 
 export default router;
