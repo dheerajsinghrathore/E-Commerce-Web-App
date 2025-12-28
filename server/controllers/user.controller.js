@@ -16,6 +16,7 @@ import {
   OTP_EXPIRATION_TIME,
   BCRYPT_SALT_ROUNDS,
 } from "../utils/constants.js";
+import { response } from "express";
 
 export async function registerUser(req, res) {
   try {
@@ -198,6 +199,9 @@ export async function loginController(req, res) {
     const accessToken = generateAccessToken(user);
     const refreshToken = await generateRefreshToken(user);
 
+    const updateUser = await UserModel.findByIdAndUpdate(user?._id, {
+      last_login_date: new Date(),
+    });
     res.cookie("accessToken", accessToken, ACCESS_TOKEN_COOKIE_OPTIONS);
     res.cookie("refreshToken", refreshToken, REFRESH_TOKEN_COOKIE_OPTIONS);
 
@@ -568,6 +572,11 @@ export async function verifyForgotPasswordOtpController(req, res) {
       });
     }
 
+    const updateUser = await UserModel.findByIdAndUpdate(user?._id, {
+      forgot_password_otp: "",
+      forgot_password_expiry: "",
+    });
+
     // Clear OTP and expiry
     user.forgot_password_otp = "";
     user.forgot_password_expiry = null;
@@ -695,8 +704,8 @@ export async function refreshTokenController(req, res) {
     }
 
     const refreshToken =
-      req.cookies.refreshToken ||
-      req.header("Authorization")?.replace("Bearer ", "");
+      req.header("Authorization")?.replace("Bearer ", "") ||
+      req.cookies?.refreshToken;
 
     if (!refreshToken) {
       return res.status(401).json({
@@ -765,6 +774,28 @@ export async function refreshTokenController(req, res) {
     });
   } catch (error) {
     console.error("Refresh token error:", error);
+    return res
+      .status(500)
+      .json({ message: error.message, error: true, success: false });
+  }
+}
+
+// Get Login User Details
+export async function loginUserDetailsController(req, res) {
+  try {
+    const userId = req.user.id;
+    const user = await UserModel.findById(userId).select(
+      "-password -refresh_token"
+    );
+
+    return res.json({
+      message: "User details",
+      data: user,
+      error: false,
+      success: true,
+    });
+  } catch (error) {
+    console.error("Get user details error:", error);
     return res
       .status(500)
       .json({ message: error.message, error: true, success: false });

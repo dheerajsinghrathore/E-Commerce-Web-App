@@ -39,6 +39,10 @@ CustomAxios.interceptors.response.use(
         if (newAccessToken) {
           originRequest.headers.Authorization = `Bearer ${newAccessToken}`;
           return CustomAxios(originRequest);
+        } else {
+          // Terminal failure: Refresh token is likely expired or invalid
+          localStorage.clear();
+          window.location.href = "/login";
         }
       }
     }

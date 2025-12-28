@@ -6,8 +6,12 @@ import AxiosApi from "../common/AxiosApi";
 import CustomAxios from "../utils/CustomAxios";
 import AxiosToastError from "../utils/AxiosToastError";
 import toast from "react-hot-toast";
+import fetchUserDetails from "../utils/fetchUserDetails";
+import { useDispatch } from "react-redux";
+import { setUserDetails } from "../store/userSlice";
 
 function Login() {
+  const dispatch = useDispatch();
   const [data, setData] = useState({
     email: "",
     password: "",
@@ -56,6 +60,10 @@ function Login() {
         toast.success(response.data.message);
         localStorage.setItem("accessToken", response.data.data.accessToken);
         localStorage.setItem("refreshToken", response.data.data.refreshToken);
+
+        const userDetails = await fetchUserDetails();
+        dispatch(setUserDetails(userDetails.data));
+
         setData({
           email: "",
           password: "",
