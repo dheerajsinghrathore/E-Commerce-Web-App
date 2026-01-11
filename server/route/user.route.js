@@ -21,13 +21,7 @@ router.post("/register", registerUser);
 router.get("/verify-email", verifyEmailController);
 router.post("/login", loginController);
 router.get("/logout", auth, logoutController);
-router.put(
-  "/upload-avatar",
-  auth,
-  upload.single("avatar"),
-  uploadCloudinaryImageController
-);
-
+router.put("/upload-avatar", auth, upload.single("avatar"), uploadCloudinaryImageController);
 router.put("/update-user", auth, updateUserProfileController);
 router.post("/forgot-password", forgotPasswordController);
 router.put("/forgot-password", forgotPasswordController); // Support both POST and PUT

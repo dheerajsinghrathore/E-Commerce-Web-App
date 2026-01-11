@@ -33,6 +33,34 @@ const AxiosApi = {
     url: "/api/user/logout",
     method: "get",
   },
+  upload_avatar: {
+    url: "/api/user/upload-avatar",
+    method: "put",
+  },
+  update_user: {
+    url: "/api/user/update-user",
+    method: "put",
+  },
+  add_category: {
+    url: "/api/category/add-category",
+    method: "post",
+  },
+  upload_image: {
+    url: "/api/upload/upload-image",
+    method: "post",
+  },
+  get_categories: {
+    url: "/api/category/get-category",
+    method: "get",
+  },
+  update_category: {
+    url: "/api/category/update-category",
+    method: "put",
+  },
+  delete_category: {
+    url: "/api/category/delete-category",
+    method: "delete",
+  },
 };
 
 export default AxiosApi;

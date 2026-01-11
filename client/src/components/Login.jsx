@@ -49,7 +49,6 @@ function Login() {
     if (!data.password) return setError("Please enter password");
 
     setError("");
-    // alert("Registration Success 🎉");
 
     try {
       const response = await CustomAxios({
@@ -70,7 +69,7 @@ function Login() {
         });
         navigate("/");
       }
-      console.log("Register Response - ", response);
+      console.log("Login Response - ", response);
     } catch (error) {
       AxiosToastError(error);
     }
@@ -80,7 +79,7 @@ function Login() {
     <section className="w-full container mx-auto px-2">
       <div className="bg-white my-4 w-full max-w-2xl mx-auto rounded p-6 shadow">
         <p>Welcome to E-commerce</p>
-        <form className="grid gap-4 mt-5">
+        <form className="grid gap-4 mt-5" onSubmit={handleLogin}>
           <div className="grid grid-cols-[150px_10px_1fr] items-center gap-2">
             <label htmlFor="email" className="text-left font-medium">
               Email
@@ -138,8 +137,8 @@ function Login() {
             </p>
           )}
           <button
-            onClick={handleLogin}
-            className="bg-orange-500 hover:bg-orange-600 text-white py-2 rounded
+            type="submit"
+            className="cursor-pointer bg-orange-500 hover:bg-orange-600 text-white py-2 rounded
   font-semibold tracking-wide w-40 mx-auto"
           >
             Login

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import logo from "../assets/logo.png";
 import Search from "./Search";
 import { Link, useNavigate } from "react-router-dom";
@@ -11,13 +11,30 @@ function Header() {
   const navigate = useNavigate();
   const user = useSelector((state) => state.user);
   const [openUserMenu, setUserOpenMenu] = useState(false);
+  const menuRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setUserOpenMenu(false);
+      }
+    };
+
+    if (openUserMenu) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [openUserMenu]);
 
   const redirectToLogin = () => {
     navigate("/login");
   };
 
   return (
-    <header className="h-auto md:h-20 shadow-md sticky top-0 bg-white z-10">
+    <header className="h-auto md:h-20 shadow-md sticky top-0 bg-white z-50">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-3 items-center h-20">
           {/* Logo */}
@@ -35,7 +52,7 @@ function Header() {
           {/* Desktop Buttons */}
           <div className="hidden lg:flex items-center gap-10 justify-end">
             {!user.loading && (
-              <div className="cursor-pointer relative">
+              <div className="cursor-pointer relative" ref={menuRef}>
                 {user?._id ? (
                   <div className="relative">
                     <div
@@ -65,7 +82,7 @@ function Header() {
                 ) : (
                   <button
                     onClick={redirectToLogin}
-                    className="text-neutral-700 font-semibold hover:text-primary-200 transition-colors"
+                    className="cursor-pointer text-neutral-700 font-semibold hover:text-primary-200 transition-colors"
                   >
                     Login
                   </button>
@@ -73,7 +90,7 @@ function Header() {
               </div>
             )}
 
-            <button className="flex items-center gap-2 hover:bg-green-700 bg-green-800 px-4 py-3 rounded text-white shadow-sm transition-all active:scale-95">
+            <button className="cursor-pointer flex items-center gap-2 hover:bg-green-700 bg-green-800 px-4 py-3 rounded text-white shadow-sm transition-all active:scale-95">
               <div className="animate-bounce">
                 <BsCart4 size={24} />
               </div>

@@ -7,6 +7,8 @@ import helmet from "helmet";
 import connectDB from "./config/connectdb.js";
 import userRouter from "./route/user.route.js";
 import errorHandler from "./middleware/errorHandler.js";
+import categoryRouter from "./route/category.route.js";
+import uploadRouter from "./route/upload.route.js";
 
 dotenv.config();
 const app = express();
@@ -34,7 +36,8 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/user", userRouter);
-
+app.use("/api/category", categoryRouter);
+app.use("/api/upload", uploadRouter);
 // Global error handler (must be last middleware)
 app.use(errorHandler);
 

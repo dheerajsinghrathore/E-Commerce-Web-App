@@ -7,6 +7,7 @@ import { logout } from "../store/userSlice";
 import AxiosApi from "../common/AxiosApi";
 import CustomAxios from "../utils/CustomAxios";
 import toast from "react-hot-toast";
+import { HiOutlineExternalLink } from "react-icons/hi";
 
 function UserMenu({ close }) {
   const user = useSelector((state) => state.user);
@@ -42,12 +43,27 @@ function UserMenu({ close }) {
 
   return (
     <div className="py-2">
-      <div className="px-4 pb-2">
-        <p className="font-bold text-neutral-800 text-base">My Account</p>
-        <p className="text-xs text-neutral-500 truncate" title={user.email}>
-          {user.name || user.mobile || user.email}
+      <Link
+        to="/dashboard/profile"
+        onClick={handleLinkClick}
+        className="px-4 pb-3 block hover:bg-primary-50 transition-all group"
+      >
+        <p className="font-bold text-neutral-800 text-base group-hover:text-primary-400">
+          My Account
         </p>
-      </div>
+        <p
+          className="text-xs text-neutral-500 truncate flex items-center gap-2"
+          title={user.email}
+        >
+          <span className="group-hover:text-neutral-700">
+            {user.name || user.mobile || user.email}
+          </span>
+          <HiOutlineExternalLink
+            size={15}
+            className="group-hover:text-primary-400 transition-colors"
+          />
+        </p>
+      </Link>
 
       <Divider />
 
