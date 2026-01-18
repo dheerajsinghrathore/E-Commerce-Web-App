@@ -8,6 +8,7 @@ import AxiosApi from "../common/AxiosApi";
 import CustomAxios from "../utils/CustomAxios";
 import toast from "react-hot-toast";
 import { HiOutlineExternalLink } from "react-icons/hi";
+import isAdmin from "../utils/isAdmin";
 
 function UserMenu({ close }) {
   const user = useSelector((state) => state.user);
@@ -24,7 +25,7 @@ function UserMenu({ close }) {
         localStorage.clear();
         dispatch(logout());
         if (close) close();
-        navigate("/login");
+        navigate("/login", { replace: true });
         toast.success(response.data.message);
       }
     } catch (error) {
@@ -48,9 +49,14 @@ function UserMenu({ close }) {
         onClick={handleLinkClick}
         className="px-4 pb-3 block hover:bg-primary-50 transition-all group"
       >
-        <p className="font-bold text-neutral-800 text-base group-hover:text-primary-400">
-          My Account
-        </p>
+        <div className="flex items-center gap-2">
+          <h2 className="font-bold text-neutral-800 text-base group-hover:text-primary-400">
+            My Account
+          </h2>
+          {isAdmin(user) && (
+            <span className="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded-full font-bold">Admin</span>
+          )}
+        </div>
         <p
           className="text-xs text-neutral-500 truncate flex items-center gap-2"
           title={user.email}

@@ -61,6 +61,22 @@ const AxiosApi = {
     url: "/api/category/delete-category",
     method: "delete",
   },
+  create_subcategory: {
+    url: "/api/subcategory/create",
+    method: "post",
+  },
+  get_subcategory: {
+    url: "/api/subcategory/get",
+    method: "get",
+  },
+  update_subcategory: {
+    url: "/api/subcategory/update/:id",
+    method: "put",
+  },
+  delete_subcategory: {
+    url: "/api/subcategory/delete/:id",
+    method: "delete",
+  },
 };
 
 export default AxiosApi;

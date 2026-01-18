@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaRegEyeSlash, FaRegEye } from "react-icons/fa6";
 import validateEmail from "../utils/validateEmail";
@@ -7,11 +7,20 @@ import CustomAxios from "../utils/CustomAxios";
 import AxiosToastError from "../utils/AxiosToastError";
 import toast from "react-hot-toast";
 import fetchUserDetails from "../utils/fetchUserDetails";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setUserDetails } from "../store/userSlice";
 
 function Login() {
   const dispatch = useDispatch();
+  const user = useSelector((state) => state.user);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user?._id) {
+      navigate("/");
+    }
+  }, [user, navigate]);
+
   const [data, setData] = useState({
     email: "",
     password: "",
@@ -21,7 +30,6 @@ function Login() {
   const [valideEmail, setValideEmail] = useState(false);
   const [error, setError] = useState("");
   const [submitted, setSubmitted] = useState(false);
-  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;

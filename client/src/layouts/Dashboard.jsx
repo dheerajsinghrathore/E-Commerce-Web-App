@@ -11,9 +11,11 @@ import {
   FiUpload,
 } from "react-icons/fi";
 
+import isAdmin from "../utils/isAdmin";
+
 function Dashboard() {
   const user = useSelector((state) => state.user);
-  
+
   return (
     <section className="bg-neutral-50/50 min-h-screen py-4 md:py-8">
       <div className="container mx-auto px-4 grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8">
@@ -24,101 +26,105 @@ function Dashboard() {
               Dashboard
             </h2>
             <nav className="flex flex-col gap-1.5">
-              <NavLink
-                to="/dashboard/products"
-                className={({ isActive }) =>
-                  `flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-300 group ${
-                    isActive
-                      ? "bg-primary-50 text-primary-600 border-r-4 border-primary-500 shadow-sm font-bold"
-                      : "text-neutral-600 hover:bg-neutral-50 hover:text-primary-500 font-medium"
-                  }`
-                }
-              >
-                {({ isActive }) => (
-                  <>
-                    <FiShoppingCart
-                      className={`text-2xl transition-transform duration-300 group-hover:scale-110 ${
+              {isAdmin(user) && (
+                <>
+                  <NavLink
+                    to="/dashboard/products"
+                    className={({ isActive }) =>
+                      `flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-300 group ${
                         isActive
-                          ? "text-primary-500"
-                          : "text-neutral-400 group-hover:text-primary-400"
-                      }`}
-                    />
-                    <span>Products</span>
-                  </>
-                )}
-              </NavLink>
+                          ? "bg-primary-50 text-primary-600 border-r-4 border-primary-500 shadow-sm font-bold"
+                          : "text-neutral-600 hover:bg-neutral-50 hover:text-primary-500 font-medium"
+                      }`
+                    }
+                  >
+                    {({ isActive }) => (
+                      <>
+                        <FiShoppingCart
+                          className={`text-2xl transition-transform duration-300 group-hover:scale-110 ${
+                            isActive
+                              ? "text-primary-500"
+                              : "text-neutral-400 group-hover:text-primary-400"
+                          }`}
+                        />
+                        <span>Products</span>
+                      </>
+                    )}
+                  </NavLink>
 
-              <NavLink
-                to="/dashboard/upload-product"
-                className={({ isActive }) =>
-                  `flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-300 group ${
-                    isActive
-                      ? "bg-primary-50 text-primary-600 border-r-4 border-primary-500 shadow-sm font-bold"
-                      : "text-neutral-600 hover:bg-neutral-50 hover:text-primary-500 font-medium"
-                  }`
-                }
-              >
-                {({ isActive }) => (
-                  <>
-                    <FiUpload
-                      className={`text-2xl transition-transform duration-300 group-hover:scale-110 ${
+                  <NavLink
+                    to="/dashboard/upload-product"
+                    className={({ isActive }) =>
+                      `flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-300 group ${
                         isActive
-                          ? "text-primary-500"
-                          : "text-neutral-400 group-hover:text-primary-400"
-                      }`}
-                    />
-                    <span>Upload Product</span>
-                  </>
-                )}
-              </NavLink>
+                          ? "bg-primary-50 text-primary-600 border-r-4 border-primary-500 shadow-sm font-bold"
+                          : "text-neutral-600 hover:bg-neutral-50 hover:text-primary-500 font-medium"
+                      }`
+                    }
+                  >
+                    {({ isActive }) => (
+                      <>
+                        <FiUpload
+                          className={`text-2xl transition-transform duration-300 group-hover:scale-110 ${
+                            isActive
+                              ? "text-primary-500"
+                              : "text-neutral-400 group-hover:text-primary-400"
+                          }`}
+                        />
+                        <span>Upload Product</span>
+                      </>
+                    )}
+                  </NavLink>
 
-              <NavLink
-                to="/dashboard/category"
-                className={({ isActive }) =>
-                  `flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-300 group ${
-                    isActive
-                      ? "bg-primary-50 text-primary-600 border-r-4 border-primary-500 shadow-sm font-bold"
-                      : "text-neutral-600 hover:bg-neutral-50 hover:text-primary-500 font-medium"
-                  }`
-                }
-              >
-                {({ isActive }) => (
-                  <>
-                    <FiLayers
-                      className={`text-2xl transition-transform duration-300 group-hover:scale-110 ${
+                  <NavLink
+                    to="/dashboard/category"
+                    className={({ isActive }) =>
+                      `flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-300 group ${
                         isActive
-                          ? "text-primary-500"
-                          : "text-neutral-400 group-hover:text-primary-400"
-                      }`}
-                    />
-                    <span>Category</span>
-                  </>
-                )}
-              </NavLink>
+                          ? "bg-primary-50 text-primary-600 border-r-4 border-primary-500 shadow-sm font-bold"
+                          : "text-neutral-600 hover:bg-neutral-50 hover:text-primary-500 font-medium"
+                      }`
+                    }
+                  >
+                    {({ isActive }) => (
+                      <>
+                        <FiLayers
+                          className={`text-2xl transition-transform duration-300 group-hover:scale-110 ${
+                            isActive
+                              ? "text-primary-500"
+                              : "text-neutral-400 group-hover:text-primary-400"
+                          }`}
+                        />
+                        <span>Category</span>
+                      </>
+                    )}
+                  </NavLink>
 
-              <NavLink
-                to="/dashboard/sub-category"
-                className={({ isActive }) =>
-                  `flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-300 group ${
-                    isActive
-                      ? "bg-primary-50 text-primary-600 border-r-4 border-primary-500 shadow-sm font-bold"
-                      : "text-neutral-600 hover:bg-neutral-50 hover:text-primary-500 font-medium"
-                  }`
-                }
-              >
-                {({ isActive }) => (
-                  <>
-                    <FiGrid
-                      className={`text-2xl transition-transform duration-300 group-hover:scale-110 ${
+                  <NavLink
+                    to="/dashboard/sub-category"
+                    className={({ isActive }) =>
+                      `flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-300 group ${
                         isActive
-                          ? "text-primary-500"
-                          : "text-neutral-400 group-hover:text-primary-400"
-                      }`}
-                    />
-                    <span>Sub Category</span>
-                  </>
-                )}
-              </NavLink>
+                          ? "bg-primary-50 text-primary-600 border-r-4 border-primary-500 shadow-sm font-bold"
+                          : "text-neutral-600 hover:bg-neutral-50 hover:text-primary-500 font-medium"
+                      }`
+                    }
+                  >
+                    {({ isActive }) => (
+                      <>
+                        <FiGrid
+                          className={`text-2xl transition-transform duration-300 group-hover:scale-110 ${
+                            isActive
+                              ? "text-primary-500"
+                              : "text-neutral-400 group-hover:text-primary-400"
+                          }`}
+                        />
+                        <span>Sub Category</span>
+                      </>
+                    )}
+                  </NavLink>
+                </>
+              )}
 
               <NavLink
                 to="/dashboard/profile"

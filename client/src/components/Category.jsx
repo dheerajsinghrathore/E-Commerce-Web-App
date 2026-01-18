@@ -73,7 +73,7 @@ function Category() {
                         <p className="text-neutral-500 font-medium animate-pulse">Fetching your categories...</p>
                     </div>
                 ) : categories.length > 0 ? (
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         {categories.map((category) => (
                             <div
                                 key={category._id}
@@ -90,24 +90,31 @@ function Category() {
                                     {category.name}
                                 </h3>
 
-                                <div className="flex items-center justify-between gap-2 mt-auto">
+                                {/* Action Buttons */}
+                                <div className="flex gap-2 mt-auto pt-2 border-t border-neutral-100 min-w-0">
                                     <button
                                         onClick={() => {
                                             setEditData(category);
                                             setOpenUploadCategory(true);
                                         }}
-                                        className="flex-1 text-xs py-1.5 bg-green-100 text-green-700 font-bold rounded-lg hover:bg-green-200 transition-colors"
+                                        className="flex-1 min-w-0 bg-blue-50 hover:bg-blue-100 text-blue-600 px-2 py-2 rounded-lg text-xs font-bold transition-all active:scale-95 flex items-center justify-center gap-1"
                                     >
-                                        Edit
+                                        <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        </svg>
+                                        <span className="truncate">Edit</span>
                                     </button>
                                     <button
                                         onClick={() => {
                                             setDeleteId(category._id);
                                             setOpenConfirmBoxDelete(true);
                                         }}
-                                        className="flex-1 text-xs py-1.5 bg-red-100 text-red-700 font-bold rounded-lg hover:bg-red-200 transition-colors"
+                                        className="flex-1 min-w-0 bg-red-50 hover:bg-red-100 text-red-600 px-2 py-2 rounded-lg text-xs font-bold transition-all active:scale-95 flex items-center justify-center gap-1"
                                     >
-                                        Delete
+                                        <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                        <span className="truncate">Delete</span>
                                     </button>
                                 </div>
                             </div>

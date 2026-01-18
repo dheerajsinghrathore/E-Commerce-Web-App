@@ -6,6 +6,13 @@ const initialValue = {
   email: "",
   avatar: "",
   mobile: "",
+  verify_email: "",
+  last_login_date: "",
+  status: "",
+  address_details: [],
+  shopping_cart: [],
+  orderHistory: [],
+  role: "",
   loading: true,
 };
 

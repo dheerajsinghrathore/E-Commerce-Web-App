@@ -15,6 +15,8 @@ import UploadProduct from "../components/UploadProduct";
 import Category from "../components/Category";
 import SubCategory from "../components/SubCategory";
 import ProductAdmin from "../components/ProductAdmin";
+import AdminPermission from "../layouts/AdminPermission";
+import ProtectedRoute from "../layouts/ProtectedRoute";
 
 const router = createBrowserRouter([
   {
@@ -51,7 +53,11 @@ const router = createBrowserRouter([
       },
       {
         path: "dashboard",
-        element: <Dashboard />,
+        element: (
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        ),
         children: [
           {
             path: "profile",
@@ -59,19 +65,35 @@ const router = createBrowserRouter([
           },
           {
             path: "products",
-            element: <ProductAdmin />,
+            element: (
+              <AdminPermission>
+                <ProductAdmin />
+              </AdminPermission>
+            ),
           },
           {
             path: "upload-product",
-            element: <UploadProduct />,
+            element: (
+              <AdminPermission>
+                <UploadProduct />
+              </AdminPermission>
+            ),
           },
           {
             path: "category",
-            element: <Category />,
+            element: (
+              <AdminPermission>
+                <Category />
+              </AdminPermission>
+            ),
           },
           {
             path: "sub-category",
-            element: <SubCategory />,
+            element: (
+              <AdminPermission>
+                <SubCategory />
+              </AdminPermission>
+            ),
           },
           {
             path: "my-orders",
