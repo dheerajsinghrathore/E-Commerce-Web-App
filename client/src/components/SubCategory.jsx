@@ -4,12 +4,15 @@ import CustomAxios from "../utils/CustomAxios";
 import AxiosApi from "../common/AxiosApi";
 import AxiosToastError from "../utils/AxiosToastError";
 import toast from "react-hot-toast";
+import ConfirmBox from "./ConfirmBox";
 
 function SubCategory() {
   const [openSubCategory, setOpenSubCategory] = useState(false);
   const [loading, setLoading] = useState(false);
   const [subCategories, setSubCategories] = useState([]);
   const [editData, setEditData] = useState(null);
+  const [openConfirmBoxDelete, setOpenConfirmBoxDelete] = useState(false);
+  const [deleteId, setDeleteId] = useState("");
 
   const fetchSubCategory = async () => {
     try {
@@ -32,20 +35,18 @@ function SubCategory() {
     setOpenSubCategory(true);
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this sub category?")) {
-      return;
-    }
-
+  const handleDelete = async () => {
     try {
       const response = await CustomAxios({
         ...AxiosApi.delete_subcategory,
-        url: AxiosApi.delete_subcategory.url.replace(":id", id),
+        url: AxiosApi.delete_subcategory.url.replace(":id", deleteId),
       });
 
       if (response.data.success) {
         toast.success("Sub category deleted successfully");
         fetchSubCategory();
+        setOpenConfirmBoxDelete(false);
+        setDeleteId("");
       }
     } catch (error) {
       AxiosToastError(error);
@@ -131,7 +132,10 @@ function SubCategory() {
                     <span className="truncate">Edit</span>
                   </button>
                   <button
-                    onClick={() => handleDelete(sub._id)}
+                    onClick={() => {
+                      setDeleteId(sub._id);
+                      setOpenConfirmBoxDelete(true);
+                    }}
                     className="flex-1 min-w-0 bg-red-50 hover:bg-red-100 text-red-600 px-2 py-2 rounded-lg text-xs font-bold transition-all active:scale-95 flex items-center justify-center gap-1"
                   >
                     <svg
@@ -184,6 +188,14 @@ function SubCategory() {
           close={handleCloseModal}
           fetchSubCategories={fetchSubCategory}
           editData={editData}
+        />
+      )}
+
+      {openConfirmBoxDelete && (
+        <ConfirmBox
+          close={() => setOpenConfirmBoxDelete(false)}
+          cancel={() => setOpenConfirmBoxDelete(false)}
+          confirm={handleDelete}
         />
       )}
     </section>
