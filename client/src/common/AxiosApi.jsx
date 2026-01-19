@@ -77,6 +77,22 @@ const AxiosApi = {
     url: "/api/subcategory/delete/:id",
     method: "delete",
   },
+  create_product: {
+    url: "/api/product/create",
+    method: "post",
+  },
+  get_products: {
+    url: "/api/product/get-products",
+    method: "get",
+  },
+  get_product_by_id: {
+    url: "/api/product/get-product/:id",
+    method: "get",
+  },
+  delete_product: {
+    url: "/api/product/delete/:id",
+    method: "delete",
+  },
 };
 
 export default AxiosApi;

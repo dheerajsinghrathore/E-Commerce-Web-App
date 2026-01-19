@@ -4,22 +4,40 @@ export const createSubCategoryController = async (req, res) => {
   try {
     const { name, category, image } = req.body;
 
-    if (
-      !name ||
-      (Array.isArray(category) ? category.length === 0 : !category) ||
-      !image
-    ) {
+    // Validate required fields
+    if (!name || typeof name !== "string" || name.trim() === "") {
       return res.status(400).json({
         success: false,
-        message: "Name, Category, and Image are required",
+        message: "Name is required",
+        error: "Invalid input",
+      });
+    }
+
+    if (!image || typeof image !== "string" || image.trim() === "") {
+      return res.status(400).json({
+        success: false,
+        message: "Image is required",
+        error: "Invalid input",
+      });
+    }
+
+    // Ensure category is an array and has at least one valid entry
+    const categoryArray = Array.isArray(category) 
+      ? category.filter(id => id && id.toString().trim() !== "")
+      : category ? [category] : [];
+
+    if (categoryArray.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "At least one category is required",
         error: "Invalid input",
       });
     }
 
     const newSubCategory = new SubCategoryModel({
-      name,
-      category,
-      image,
+      name: name.trim(),
+      category: categoryArray,
+      image: image.trim(),
     });
     const save = await newSubCategory.save();
 
@@ -33,7 +51,7 @@ export const createSubCategoryController = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: error.message || "Server error while creating sub-category",
-      error: error,
+      error: error.message,
     });
   }
 };
@@ -84,32 +102,48 @@ export const updateSubCategory = async (req, res) => {
     const { id } = req.params;
     const { name, category, image } = req.body;
 
-    if (
-      !name ||
-      (Array.isArray(category) ? category.length === 0 : !category) ||
-      !image
-    ) {
+    // Validate required fields with specific error messages
+    if (!name || typeof name !== "string" || name.trim() === "") {
       return res.status(400).json({
         success: false,
-        message: "Name, Category, and Image are required",
+        message: "Name is required",
+        error: "Invalid input",
+      });
+    }
+
+    if (!image || typeof image !== "string" || image.trim() === "") {
+      return res.status(400).json({
+        success: false,
+        message: "Image is required",
+        error: "Invalid input",
+      });
+    }
+
+    // Ensure category is an array and has at least one valid entry
+    const categoryArray = Array.isArray(category) 
+      ? category.filter(id => id && id.toString().trim() !== "")
+      : category ? [category] : [];
+
+    if (categoryArray.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "At least one category is required",
         error: "Invalid input",
       });
     }
 
     const updatedSubCategory = await SubCategoryModel.findByIdAndUpdate(
       id,
-      { name, category, image },
-      { new: true },
-    );
+      { name: name.trim(), category: categoryArray, image: image.trim() },
+      { new: true, runValidators: true },
+    ).populate("category");
 
     if (!updatedSubCategory) {
-      return res
-        .status(404)
-        .json({
-          success: false,
-          message: "Sub-category not found",
-          error: true,
-        });
+      return res.status(404).json({
+        success: false,
+        message: "Sub-category not found",
+        error: true,
+      });
     }
 
     return res.status(200).json({
@@ -122,7 +156,8 @@ export const updateSubCategory = async (req, res) => {
     console.error("Error updating sub-category:", error);
     return res.status(500).json({
       success: false,
-      message: "Server error while updating sub-category",
+      message: error.message || "Server error while updating sub-category",
+      error: error.message,
     });
   }
 };

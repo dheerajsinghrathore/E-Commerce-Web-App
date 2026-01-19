@@ -10,6 +10,7 @@ import errorHandler from "./middleware/errorHandler.js";
 import categoryRouter from "./route/category.route.js";
 import uploadRouter from "./route/upload.route.js";
 import subcategoryRouter from "./route/subcategory.route.js";
+import productRouter from "./route/product.route.js";
 
 dotenv.config();
 const app = express();
@@ -20,7 +21,7 @@ app.use(
   cors({
     credentials: true,
     origin: process.env.FRONT_END_URL,
-  })
+  }),
 );
 app.use(express.json());
 app.use(cookieParser());
@@ -29,7 +30,7 @@ app.use(
   helmet({
     contentSecurityPolicy: false,
     crossOriginResourcePolicy: false,
-  })
+  }),
 );
 
 app.get("/", (req, res) => {
@@ -40,6 +41,7 @@ app.use("/api/user", userRouter);
 app.use("/api/category", categoryRouter);
 app.use("/api/subcategory", subcategoryRouter);
 app.use("/api/upload", uploadRouter);
+app.use("/api/product", productRouter);
 // Global error handler (must be last middleware)
 app.use(errorHandler);
 

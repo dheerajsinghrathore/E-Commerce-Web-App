@@ -13,15 +13,25 @@ function UploadSubcategory({ close, fetchSubCategories, editData }) {
         category: []
     });
     const [loading, setLoading] = useState(false);
+    const [loadingCategories, setLoadingCategories] = useState(false);
     const [allCategory, setAllCategory] = useState([]);
 
     // Populate form when editing
     useEffect(() => {
         if (editData) {
+            // Handle category - it might be populated objects or just IDs
+            let categoryIds = [];
+            if (editData.category && Array.isArray(editData.category)) {
+                categoryIds = editData.category.map(cat => {
+                    // If it's an object with _id, use _id, otherwise use the value itself
+                    return typeof cat === 'object' && cat._id ? cat._id : cat;
+                });
+            }
+            
             setData({
                 name: editData.name || "",
                 image: editData.image || "",
-                category: editData.category?.map(cat => cat._id) || []
+                category: categoryIds
             });
         } else {
             // Reset form when not editing
@@ -64,14 +74,17 @@ function UploadSubcategory({ close, fetchSubCategories, editData }) {
 
     const fetchAllCategory = async () => {
         try {
+            setLoadingCategories(true);
             const response = await CustomAxios({
                 ...AxiosApi.get_categories,
             });
             if (response.data.success) {
-                setAllCategory(response.data.categories);
+                setAllCategory(response.data.categories || []);
             }
         } catch (error) {
             AxiosToastError(error);
+        } finally {
+            setLoadingCategories(false);
         }
     };
 
@@ -88,25 +101,54 @@ function UploadSubcategory({ close, fetchSubCategories, editData }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!data.name.trim()) return toast.error("Please enter subcategory name");
-        if (!data.image) return toast.error("Please upload an image");
-        if (data.category.length === 0) return toast.error("Please select at least one category");
+        
+        // Client-side validation with specific error messages
+        if (!data.name || !data.name.trim()) {
+            return toast.error("Please enter subcategory name");
+        }
+        if (!data.image || data.image.trim() === "") {
+            return toast.error("Please upload an image");
+        }
+        if (!data.category || !Array.isArray(data.category) || data.category.length === 0) {
+            return toast.error("Please select at least one category");
+        }
 
         setLoading(true);
         try {
+            // Ensure category is an array of strings/IDs and remove any falsy values
+            const categoryArray = Array.isArray(data.category) 
+                ? data.category.filter(id => id && id.trim && id.trim() !== "").filter(Boolean)
+                : [];
+
+            // Validate again after filtering
+            if (categoryArray.length === 0) {
+                toast.error("Please select at least one valid category");
+                setLoading(false);
+                return;
+            }
+
+            const submitData = {
+                name: data.name.trim(),
+                image: data.image.trim(),
+                category: categoryArray
+            };
+
+            // Debug log (can be removed in production)
+            console.log("Submitting subcategory data:", submitData);
+
             let response;
             if (editData) {
                 // Update existing subcategory
                 response = await CustomAxios({
                     ...AxiosApi.update_subcategory,
                     url: AxiosApi.update_subcategory.url.replace(":id", editData._id),
-                    data: data,
+                    data: submitData,
                 });
             } else {
                 // Create new subcategory
                 response = await CustomAxios({
                     ...AxiosApi.create_subcategory,
-                    data: data,
+                    data: submitData,
                 });
             }
 
@@ -116,6 +158,7 @@ function UploadSubcategory({ close, fetchSubCategories, editData }) {
                 if (close) close();
             }
         } catch (error) {
+            console.error("Error submitting subcategory:", error);
             AxiosToastError(error);
         } finally {
             setLoading(false);
@@ -175,35 +218,55 @@ function UploadSubcategory({ close, fetchSubCategories, editData }) {
 
                     <div className="grid gap-2">
                         <label className="text-sm font-bold text-neutral-700">Select Category</label>
-                        <select
-                            className="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-400 focus:border-transparent outline-none transition-all font-medium appearance-none cursor-pointer"
-                            onChange={(e) => {
-                                if (e.target.value && !data.category.includes(e.target.value)) {
-                                    setData(prev => ({ ...prev, category: [...prev.category, e.target.value] }))
-                                    e.target.value = ""; // Reset select after adding
-                                }
-                            }}
-                            value=""
-                        >
-                            <option value="">Choose a category</option>
-                            {allCategory.filter(cat => !data.category.includes(cat._id)).map(cat => (
-                                <option key={cat._id} value={cat._id}>{cat.name}</option>
-                            ))}
-                        </select>
+                        {loadingCategories ? (
+                            <div className="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl flex items-center justify-center">
+                                <div className="w-5 h-5 border-2 border-primary-200 border-t-primary-500 rounded-full animate-spin"></div>
+                                <span className="ml-2 text-sm text-neutral-500">Loading categories...</span>
+                            </div>
+                        ) : (
+                            <select
+                                className="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-400 focus:border-transparent outline-none transition-all font-medium appearance-none cursor-pointer"
+                                onChange={(e) => {
+                                    const selectedValue = e.target.value;
+                                    if (selectedValue && selectedValue.trim() !== "" && !data.category.includes(selectedValue)) {
+                                        setData(prev => ({ ...prev, category: [...prev.category, selectedValue] }));
+                                        e.target.value = ""; // Reset select after adding
+                                    }
+                                }}
+                                value=""
+                                disabled={loadingCategories || allCategory.length === 0}
+                            >
+                                <option value="">{allCategory.length === 0 ? "No categories available" : "Choose a category"}</option>
+                                {allCategory
+                                    .filter(cat => cat && cat._id && !data.category.includes(cat._id))
+                                    .map(cat => (
+                                        <option key={cat._id} value={cat._id}>{cat.name || "Unnamed Category"}</option>
+                                    ))}
+                            </select>
+                        )}
+                        
+                        {!loadingCategories && allCategory.length === 0 && (
+                            <p className="text-xs text-amber-600 mt-1">
+                                No categories available. Please add categories first.
+                            </p>
+                        )}
 
-                        <div className="flex flex-wrap gap-2 mt-2">
-                            {data.category.map(catId => {
-                                const cat = allCategory.find(c => c._id === catId);
-                                return (
-                                    <div key={catId} className="flex items-center gap-2 bg-primary-50 text-primary-600 px-3 py-1.5 rounded-lg border border-primary-100 font-bold text-sm group">
-                                        <span>{cat?.name}</span>
-                                        <button type="button" onClick={() => handleRemoveCategory(catId)} className="hover:text-red-500 transition-colors">
-                                            <IoClose size={18} />
-                                        </button>
-                                    </div>
-                                )
-                            })}
-                        </div>
+                        {data.category.length > 0 && (
+                            <div className="flex flex-wrap gap-2 mt-2">
+                                {data.category.map(catId => {
+                                    const cat = allCategory.find(c => c._id === catId);
+                                    if (!cat && !catId) return null; // Skip invalid entries
+                                    return (
+                                        <div key={catId} className="flex items-center gap-2 bg-primary-50 text-primary-600 px-3 py-1.5 rounded-lg border border-primary-100 font-bold text-sm group">
+                                            <span>{cat?.name || "Unknown Category"}</span>
+                                            <button type="button" onClick={() => handleRemoveCategory(catId)} className="hover:text-red-500 transition-colors">
+                                                <IoClose size={18} />
+                                            </button>
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                        )}
                     </div>
 
                     <button
