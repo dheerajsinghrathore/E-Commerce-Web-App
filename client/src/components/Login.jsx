@@ -30,6 +30,8 @@ function Login() {
   const [valideEmail, setValideEmail] = useState(false);
   const [error, setError] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -57,6 +59,13 @@ function Login() {
     if (!data.password) return setError("Please enter password");
 
     setError("");
+    setLoading(true);
+    setLoadingMessage("");
+
+    // Show a message if it takes more than 4 seconds
+    const timer = setTimeout(() => {
+      setLoadingMessage("The server is taking a bit longer than usual, please stay with us! 🚀");
+    }, 4000);
 
     try {
       const response = await CustomAxios({
@@ -77,90 +86,119 @@ function Login() {
         });
         navigate("/");
       }
-      console.log("Login Response - ", response);
     } catch (error) {
       AxiosToastError(error);
+    } finally {
+      clearTimeout(timer);
+      setLoading(false);
+      setLoadingMessage("");
     }
   };
 
   return (
     <section className="w-full container mx-auto px-2">
-      <div className="bg-white my-4 w-full max-w-2xl mx-auto rounded p-6 shadow">
-        <p>Welcome to E-commerce</p>
-        <form className="grid gap-4 mt-5" onSubmit={handleLogin}>
-          <div className="grid grid-cols-[150px_10px_1fr] items-center gap-2">
-            <label htmlFor="email" className="text-left font-medium">
-              Email
-            </label>
+      <div className="bg-white my-8 w-full max-w-lg mx-auto rounded-3xl p-8 shadow-2xl border border-neutral-100">
+        <div className="text-center mb-10">
+          <h2 className="text-3xl font-black text-neutral-800 mb-2">Welcome Back</h2>
+          <p className="text-neutral-500 font-medium">Please enter your details to sign in</p>
+        </div>
 
-            <span>:</span>
+        <form className="space-y-6" onSubmit={handleLogin}>
+          <div className="space-y-2">
+            <label htmlFor="email" className="block text-sm font-bold text-neutral-700 ml-1">
+              Email Address
+            </label>
             <input
               type="text"
               id="email"
               name="email"
-              placeholder="Enter your email"
+              placeholder="name@example.com"
               value={data.email}
               onChange={handleChange}
-              className="bg-blue-50 p-2 border rounded w-full pr-10 outline-none focus:border-primary-200"
+              disabled={loading}
+              className="w-full bg-neutral-50 border-2 border-neutral-100 p-3.5 rounded-2xl outline-none focus:border-primary-400 focus:bg-white transition-all text-sm disabled:opacity-50"
             />
-            {/* {valideEmail && !valideEmail.isValid && (
-              <p className="text-red-500 text-sm mt-1">{valideEmail.message}</p>
-            )} */}
           </div>
-          <div className="grid grid-cols-[150px_10px_1fr] items-center gap-2">
-            <label htmlFor="password" className="text-left font-medium">
-              Password
-            </label>
 
-            <span>:</span>
+          <div className="space-y-2">
+            <div className="flex justify-between items-center px-1">
+              <label htmlFor="password" racer-label="true" className="text-sm font-bold text-neutral-700">
+                Password
+              </label>
+              <Link
+                to={"/forgot-password"}
+                className="text-xs font-bold text-primary-500 hover:text-primary-600 transition-colors"
+              >
+                Forgot Password?
+              </Link>
+            </div>
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
                 id="password"
                 name="password"
-                placeholder="Enter your password"
+                placeholder="••••••••"
                 value={data.password}
                 onChange={handleChange}
-                className="bg-blue-50 p-2 border rounded w-full pr-10 outline-none focus:border-primary-200"
+                disabled={loading}
+                className="w-full bg-neutral-50 border-2 border-neutral-100 p-3.5 rounded-2xl outline-none focus:border-primary-400 focus:bg-white transition-all text-sm disabled:opacity-50 pr-12"
               />
-              <div
+              <button
+                type="button"
                 onClick={() => setShowPassword((prev) => !prev)}
-                className="cursor-pointer absolute right-3 top-1/2 -translate-y-1/2"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 transition-colors"
+                disabled={loading}
               >
-                {showPassword ? <FaRegEye /> : <FaRegEyeSlash />}
-              </div>
+                {showPassword ? <FaRegEye size={18} /> : <FaRegEyeSlash size={18} />}
+              </button>
             </div>
           </div>
-          <p className="block ml-auto hover:text-blue-500">
-            <Link
-              to={"/forgot-password"}
-              className="font-semibold text-blue-400 hover:text-blue-800"
+
+          {submitted && error && (
+            <div className="bg-red-50 border border-red-100 text-red-600 p-3 rounded-xl text-xs font-bold text-center">
+              {error}
+            </div>
+          )}
+
+          <div className="pt-2">
+            <button
+              type="submit"
+              disabled={loading}
+              className={`w-full py-4 rounded-2xl font-black tracking-wide transition-all active:scale-[0.98] shadow-lg flex items-center justify-center gap-3
+                ${loading
+                  ? "bg-neutral-200 text-neutral-500 cursor-not-allowed shadow-none"
+                  : "bg-primary-500 hover:bg-primary-600 text-white shadow-primary-500/30"
+                }`}
             >
-              Forgot Password ?
+              {loading ? (
+                <>
+                  <div className="w-5 h-5 border-[3px] border-neutral-300 border-t-neutral-600 rounded-full animate-spin"></div>
+                  <span>Signing In...</span>
+                </>
+              ) : (
+                "Sign In"
+              )}
+            </button>
+          </div>
+        </form>
+
+        {loadingMessage && (
+          <div className="mt-6 p-4 bg-blue-50 border border-blue-100 rounded-2xl text-[11px] text-blue-700 font-bold text-center animate-pulse">
+            {loadingMessage}
+          </div>
+        )}
+
+        <div className="mt-10 pt-6 border-t border-neutral-100 text-center">
+          <p className="text-sm font-medium text-neutral-500">
+            Don't have an account?{" "}
+            <Link
+              to={"/register"}
+              className="text-primary-500 font-bold hover:text-primary-600 transition-colors ml-1"
+            >
+              Join us today
             </Link>
           </p>
-          {submitted && error && (
-            <p className="text-center text-red-500 font-medium text-sm">
-              {error}
-            </p>
-          )}
-          <button
-            type="submit"
-            className="cursor-pointer bg-orange-500 hover:bg-orange-600 text-white py-2 rounded
-  font-semibold tracking-wide w-40 mx-auto"
-          >
-            Login
-          </button>
-        </form>
-        <p className="text-center mt-5">
-          Don't have account ?{" "}
-          <Link
-            to={"/register"}
-            className="font-semibold text-blue-700 hover:text-blue-800"
-          >
-            Register
-          </Link>
-        </p>
+        </div>
       </div>
     </section>
   );

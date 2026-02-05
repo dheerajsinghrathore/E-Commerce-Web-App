@@ -89,6 +89,10 @@ const AxiosApi = {
     url: "/api/product/get-product/:id",
     method: "get",
   },
+  get_products_by_category: {
+    url: "/api/product/get-products-by-category",
+    method: "post",
+  },
   delete_product: {
     url: "/api/product/delete/:id",
     method: "delete",

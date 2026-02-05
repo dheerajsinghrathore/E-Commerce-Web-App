@@ -16,14 +16,14 @@ export const createProductController = async (req, res) => {
     } = req.body;
 
     // Validate and clean arrays
-    const imageArray = Array.isArray(image) 
+    const imageArray = Array.isArray(image)
       ? image.filter(img => img && typeof img === 'string' && img.trim() !== '')
       : image ? [image] : [];
-    
+
     const categoryArray = Array.isArray(category)
       ? category.filter(cat => cat && cat.toString().trim() !== '')
       : category ? [category] : [];
-    
+
     const subCategoryArray = Array.isArray(subCategory)
       ? subCategory.filter(sub => sub && sub.toString().trim() !== '')
       : subCategory ? [subCategory] : [];
@@ -213,6 +213,45 @@ export const deleteProduct = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Server Error: Unable to delete product",
+      error: error.message,
+    });
+  }
+};
+
+export const getProductsByCategory = async (req, res) => {
+  try {
+    const { id, subcategory } = req.body;
+
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "Category ID is required",
+        error: true,
+      });
+    }
+
+    const query = {
+      is_active: true,
+      category: { $in: [id] },
+    };
+
+    if (subcategory) {
+      query.sub_category = { $in: [subcategory] };
+    }
+
+    const products = await ProductModel.find(query)
+      .populate("category", "name")
+      .populate("sub_category", "name")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      products,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server Error: Unable to fetch products by category",
       error: error.message,
     });
   }

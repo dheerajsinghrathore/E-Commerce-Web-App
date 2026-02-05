@@ -17,6 +17,7 @@ import SubCategory from "../components/SubCategory";
 import ProductAdmin from "../components/ProductAdmin";
 import AdminPermission from "../layouts/AdminPermission";
 import ProtectedRoute from "../layouts/ProtectedRoute";
+import ProductList from "../components/ProductList";
 
 const router = createBrowserRouter([
   {
@@ -104,6 +105,14 @@ const router = createBrowserRouter([
             element: <SavedAddresses />,
           },
         ],
+      },
+      {
+        path: "category/:categoryName",
+        element: <ProductList />,
+      },
+      {
+        path: "category/:categoryName/:subcategoryName",
+        element: <ProductList />,
       },
     ],
   },
